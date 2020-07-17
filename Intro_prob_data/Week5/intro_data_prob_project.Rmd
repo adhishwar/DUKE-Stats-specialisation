@@ -1,0 +1,232 @@
+---
+title: "Exploring the BRFSS data"
+output: 
+  html_document: 
+    fig_height: 4
+    highlight: pygments
+    theme: spacelab
+---
+
+## Setup
+
+### Load packages
+
+```{r load-packages, message = FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
+### Load data
+
+```{r load-data, messaege = FALSE}
+load("brfss2013.RData")
+```
+
+
+
+* * *
+
+## Part 1: Data
+
+Scope of Inference:
+
+Important points:
+<ol>
+<li>The BRFSS conducts telephonic surveys as well as cellphone surveys.</li>
+
+<li>The survey is conducted on non-institutionalized adult American population.</li>
+
+<li>The people who are surveyed are sampled from the population using Stratified sampling and Random Sampling </li>
+</ol>
+
+<b>Generalizability:</b>
+                    As Random sampling has been used during data collection, the results of any analysis that we perform on this data can be generalized to the Adult American population, that has a telephone or a cellphone, that is not institutionalized.
+                    
+<b>Causality:</b>
+            We cannot arrive at any causal inferences using this data because no random assignment has taken place here.
+            
+            
+* * *
+
+## Part 2: Research questions
+
+**Research quesion 1:**
+
+What effect does lack of exercise have an effect on the BMI (Body Mass Index) of adults in the US? What is the proportion for males as well as females? A BMI greater than 25 is said to be overweight/obese.
+
+Variables of interest:
+
+<ul>
+    <li>X_rfbmi5</li>
+    <li>exerany2</li>
+    <li>sex</li>
+</ul>    
+
+**Research quesion 2:**
+
+Is there a correlation between exercise habits and high blood cholesterol i.e For those who do not exercise, do they have high blood cholesterol ?
+
+Variables of interest:
+
+<ul>
+    <li>exerany2</li>
+    <li>toldhi2</li>
+</ul>    
+    
+**Research quesion 3:**
+
+What effect does regular consumption of alcohol and tobacco have on the heart? What is the probability that adults who regularly drink and smoke are more prone to coronary heart disease? 
+
+Variables of interest:
+
+<ul>
+    <li>X_rfdrhv4</li>
+    <li>smokday2</li>
+    <li>cvdcrhd4</li>
+</ul>   
+
+
+## Part 3: Exploratory data analysis
+
+NOTE: Insert code chunks as needed by clicking on the "Insert a new code chunk" 
+button (green button with orange arrow) above. Make sure that your code is visible
+in the project you submit. Delete this note when before you submit your work.
+
+**Research quesion 1:**
+
+First we query the required variables into a new dataframe.
+```{r males}
+males <- brfss2013 %>%
+ select(sex,exerany2,X_rfbmi5) %>% 
+    filter(!is.na(sex),!is.na(exerany2),!is.na(X_rfbmi5),sex=="Male")
+
+summary(males)
+```
+
+
+```{r males-who-dont-exercise}
+v1males <- males %>%
+ group_by(exerany2) %>%
+ summarise(count = n())
+v1males
+```
+We see that `r v1males[[which(v1males$exerany2=='No'),'count']]` of the males do not exercise.
+
+```{r}
+ggplot(data = v1males, aes(exerany2,count)) + geom_bar(stat="identity") + xlab('Exercise In Past 30 Days') + ylab('Count')
+```
+```{r}
+v2males <- males %>%
+  group_by(exerany2,X_rfbmi5) %>%
+  summarise(count = n())
+
+probmales <- v2males[4,3] / (v2males[4,3] + v2males[3,3])
+
+probmales * 100
+```
+
+Approximately `r round(probmales * 100)`% of the males who do not exercise have a BMI > 25 (obese / overweight).
+
+Let us see the same statistics in Females
+
+```{r}
+females <- brfss2013 %>%
+ filter(!is.na(sex),!is.na(exerany2),!is.na(X_rfbmi5),sex=="Female") %>%
+ select(sex,exerany2,X_rfbmi5)
+
+summary(females)
+```
+
+```{r}
+v1females <- females %>%
+ group_by(exerany2) %>%
+ summarise(count = n())
+v1females
+```
+We see that `r v1females[[which(v1females$exerany2=='No'),'count']]` of the males do not exercise.
+
+```{r}
+ggplot(data = v1females, aes(exerany2,count)) + geom_bar(stat="identity") + xlab('Exercise In Past 30 Days') + ylab('Count')
+```
+```{r}
+v2females <- females %>%
+  group_by(exerany2,X_rfbmi5) %>%
+  summarise(count = n())
+probfemales <- v2females[4,3] / (v2females[4,3] + v2females[3,3])
+probfemales * 100
+```
+
+Approximately `r round(probfemales * 100)`% of Females who do not exercise have a BMI > 25.
+
+
+
+**Research quesion 2:**
+
+```{r}
+sub <- brfss2013 %>%
+     select(toldhi2,exerany2) %>% 
+                filter(!is.na(toldhi2),!is.na(exerany2))
+
+summary(sub)
+```
+
+```{r}
+var1 <- sub %>%
+ filter(exerany2=="No") %>%
+ group_by(toldhi2) %>%
+ summarise(cnt = n())
+
+var1
+```
+Here we can see that adults who do exercise also have similar probability of high blood cholesterol in blood.
+
+Let us visualize this
+```{r}
+ggplot(data = var1, aes(toldhi2,cnt)) + geom_bar(stat="identity")
+
+```
+
+From the bar plot above we can see that adults who do not exercise may or may not have high blood cholestrol. Hence there is no conclusive evidence that lack of exercise may lead to high blood cholestrol.
+
+
+
+
+**Research quesion 3:**
+
+```{r}
+df <- brfss2013 %>% 
+    select(smokday2,X_rfdrhv4,cvdcrhd4) %>% 
+    filter(!is.na(smokday2),!is.na(X_rfdrhv4),!is.na(cvdcrhd4))
+
+summary(df)
+```
+
+
+First we remove all the NA values.
+
+```{r}
+smevents <- df %>%
+ filter(smokday2 == "Every day" | smokday2 == "Some days" & X_rfdrhv4 == "Yes" & cvdcrhd4 == "Yes")%>%
+ summarise(cnt = n())
+
+
+```
+
+```{r}
+allevents <- df %>%
+ summarise(cnt = n())
+
+allevents
+```
+Now the probability that adults who smoke everyday and drink sometimes or everyday is :- 
+
+```{r}
+prob <- smevents / allevents * 100
+prob
+```
+Approximately `r round(prob)`% of the adults have coronary heart disease or angina who smoke everyday and drink either everyday or some days.
+```{r}
+ ggplot(df, aes(x=cvdcrhd4, fill = smokday2)) +
+   geom_bar(position="dodge") + facet_wrap( ~ X_rfdrhv4, ncol=2) 
+```
+
