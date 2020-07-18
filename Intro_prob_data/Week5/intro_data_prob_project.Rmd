@@ -36,7 +36,7 @@ Important points:
 
 <li>The survey is conducted on non-institutionalized adult American population.</li>
 
-<li>The people who are surveyed are sampled from the population using Stratified sampling and Random Sampling </li>
+<li>The people who are surveyed are sampled from the population using <b>Stratified sampling and Random Sampling</b> </li>
 </ol>
 
 <b>Generalizability:</b>
@@ -45,7 +45,14 @@ Important points:
 <b>Causality:</b>
             We cannot arrive at any causal inferences using this data because no random assignment has taken place here.
             
-            
+<b>Sources of Bias:</b>
+This data collection is biased towards households that do no contain any type of telephonic survey in their household. It is also biased towards institutionalized adult population residing in the US.
+
+
+<b>Sample Size: </b>
+The BRFSS goal is to support at least 4,000 interviews per state each year.
+
+
 * * *
 
 ## Part 2: Research questions
@@ -63,7 +70,7 @@ Variables of interest:
 </ul>    
 
 **Research quesion 2:**
-
+We are all told that lack of daily exercise leads to obesity and other problems such as high blood cholesterol.
 Is there a correlation between exercise habits and high blood cholesterol i.e For those who do not exercise, do they have high blood cholesterol ?
 
 Variables of interest:
@@ -75,6 +82,7 @@ Variables of interest:
     
 **Research quesion 3:**
 
+Regular smoking tobbaco and alcohol consumption is related to the risk of coronary heart disease.
 What effect does regular consumption of alcohol and tobacco have on the heart? What is the probability that adults who regularly drink and smoke are more prone to coronary heart disease? 
 
 Variables of interest:
@@ -186,7 +194,7 @@ ggplot(data = var1, aes(toldhi2,cnt)) + geom_bar(stat="identity")
 
 ```
 
-From the bar plot above we can see that adults who do not exercise may or may not have high blood cholestrol. Hence there is no conclusive evidence that lack of exercise may lead to high blood cholestrol.
+<b>From the bar plot above we can see that adults who do not exercise may or may not have high blood cholesterol. Hence there is no conclusive evidence that lack of exercise may lead to high blood cholesterol.</b>
 
 
 
@@ -229,4 +237,6 @@ Approximately `r round(prob)`% of the adults have coronary heart disease or angi
  ggplot(df, aes(x=cvdcrhd4, fill = smokday2)) +
    geom_bar(position="dodge") + facet_wrap( ~ X_rfdrhv4, ncol=2) 
 ```
+
+<b>Hence we can conclude that smoking/drinking and having coronary heart disease or angina are most likely related.</b>
 
